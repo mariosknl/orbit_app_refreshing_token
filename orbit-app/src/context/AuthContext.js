@@ -1,5 +1,6 @@
 import React, { createContext, useState } from "react";
 import { useHistory } from "react-router-dom";
+import { publicFetch } from "./../util/fetch";
 
 const AuthContext = createContext();
 const { Provider } = AuthContext;
@@ -51,6 +52,15 @@ const AuthProvider = ({ children }) => {
     return authState.userInfo.role === "admin";
   };
 
+  const getNewToken = async () => {
+    try {
+      const { data } = await publicFetch.get("/token/refresh");
+      setAuthState(Object.assign({}, authState, { token: data.token }));
+    } catch (error) {
+      return error;
+    }
+  };
+
   return (
     <Provider
       value={{
@@ -59,6 +69,7 @@ const AuthProvider = ({ children }) => {
         logout,
         isAuthenticated,
         isAdmin,
+        getNewToken,
       }}
     >
       {children}
